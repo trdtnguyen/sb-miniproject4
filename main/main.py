@@ -1,5 +1,6 @@
 import mysql.connector
 import pandas as pd
+from numpy import record
 
 
 def get_db_connection():
@@ -48,25 +49,50 @@ def load_third_party(connection, file_path_csv):
     cursor.close()
 
 
-def query_popular_tickets(connection):
-    # Get the most popular ticket in the past month
+def query_best_selling_event(connection):
+    # Get the best selling event in the past month
     sql_statement = ("SELECT event_name, SUM(num_tickets) "
                      "FROM ticket_sale "
                      "GROUP BY event_name "
-                     "ORDER BY SUM(num_tickets) DESC")
+                     "ORDER BY SUM(num_tickets) DESC "
+                     "LIMIT 1")
     cursor = connection.cursor()
     cursor.execute(sql_statement)
     records = cursor.fetchall()
     cursor.close()
     return records
 
+def print_best_selling_event(records):
+    print("Best selling events:")
+    for record in records:
+        print(f' - {record[0]}: number sold ticket {record[1]}')
+
+def query_best_price_ticket(connection):
+    # Get the best price event in the past month
+    sql_statement = ("SELECT ticket_id, event_name, event_date, price "
+                     "FROM ticket_sale "
+                     "ORDER BY price DESC "
+                     "LIMIT 1")
+
+    cursor = connection.cursor()
+    cursor.execute(sql_statement)
+    records = cursor.fetchall()
+    cursor.close()
+    return records
+
+def print_best_price_ticket(records):
+    print("Best price ticket:")
+    for record in records:
+        print(f' - {record[0]}: at event {record[1]} on {record[2]} with price: {record[3]}')
 
 file_path_csv = 'ticket_sale.csv'
 connection = get_db_connection()
 #load_third_party(connection, file_path_csv)
-records = query_popular_tickets(connection)
+records = query_best_selling_event(connection)
+print_best_selling_event(records)
 
-print("Here are the most popular tickets in the past month:")
-for record in records:
-    print(f' - {record[0]}: number sold ticket {record[1]}')
+records = query_best_price_ticket(connection)
+print_best_price_ticket(records)
+
+
 connection.close()
