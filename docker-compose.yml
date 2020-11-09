@@ -1,0 +1,31 @@
+version: "3.3"
+services:
+    db:
+        image: mysql:latest
+        cap_add: 
+            - SYS_NICE
+        command: --default-authentication-plugin=mysql_native_password
+        networks: 
+            - db
+        volumes:
+            - "mysqldata:/var/lib/mysql"
+        env_file:
+            - mysql.env
+    airflow-engine:
+        build: ./airflow-engine
+        depends_on: 
+            - db
+        init: true
+        networks: 
+            - db
+        volumes:
+            - "airflow-engine:/root/airflow/"
+        ports:
+            - "8080:8080"
+        env_file:
+            - mysql.env
+networks:
+    db:
+volumes:
+    airflow-engine:
+    mysqldata: 
