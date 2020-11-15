@@ -1,6 +1,3 @@
-create database ticket_event;
-use ticket_event;
-
 CREATE TABLE IF NOT EXISTS ticket_sale(
 	ticket_id INT,
     trans_date INT,
